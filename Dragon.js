@@ -5,7 +5,7 @@ const readline = require("readline");
 // --- الإعدادات العامة والتطبيق ---
 const GRAPH_VERSION = "v22.0";
 
-// --- بيانات الوصول المحدثة للبث المباشر والتعديل ---
+// --- بيانات الوصول للبث المباشر والتعديل ---
 const LIVE_ACCESS_TOKEN = "EAAZAfLN8JuaMBSDchhhQFMqF8xJfvjDmSrEO2qTGCYWBa1uo4t9IuKBNtSVn8iMZAnmPwGVUFWooX2faBveSX8jZCLBCMM8tf3zmpD87CFI57dD3AnH40TGDvqYl3qG2JpfBZB3htAfZBYen4jqjKjYwou8qAKO7WLdpKxrm8xFBWMTsWhN5RwLUqxU0sTZBviP7zw";
 const LIVE_PAGE_ID = "466039649924341";
 
@@ -13,7 +13,7 @@ const POST_ACCESS_TOKEN = "EAAZAfLN8JuaMBSNC4PaTVkOfXF7cZAMhj4sT6j35zJQQvVnJXzdz
 const POST_PAGE_ID = "1288067541053277";
 const POST_ID = "122102349183401514";
 
-// --- قائمة القنوات بالروابط الجديدة ---
+// --- قائمة القنوات المحدثة ---
 const CHANNELS = [
   { name: "beIN News", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/83618.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/753320194_122100376827401514_8275779885008593037_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=104&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=Z1L3joJIsbAQ7kNvwE-yaFq&_nc_oc=Adp37Drggm4JsIEa_bDP3atBnWXnz9dB58hBEpxXEh5u3hayJ1uiUkOGUnCqQJ-DaUw&_nc_zt=23&_nc_ht=scontent.fcmn5-1.fna&_nc_gid=HTDMSiG_KoRIadFytuAx-Q&_nc_ss=7b289&oh=00_AQBepozuMy5zvH_u-B_hQK19qg3OZrdaF-uGU9YxubJT7w&oe=6A6476B7" },
   { name: "beIN 1", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78797.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751563664_122100376317401514_7110231260316540204_n.jpg?stp=dst-jpg_tt6&cstp=mx447x447&ctp=s447x447&_nc_cat=102&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=TLpTgiehBq8Q7kNvwG7e6fr&_nc_oc=Adphwie250_LoPza4kadv_EOltqLTSHDBw0vTUdHWHFNAOZr7ZbvkYmYNJxlPtX1Nsg&_nc_zt=23&_nc_ht=scontent.fcmn7-1.fna&_nc_gid=yEEgc5683cYLvXmaIGKcfQ&_nc_ss=7b289&oh=00_AQAhfQL5H2WsQlyG_D71zMMeKFFA9RnABtcAqsxKzh-thg&oe=6A644D8D" },
@@ -42,6 +42,7 @@ const CHANNELS = [
 const SESSION_MS = (3 * 60 + 55) * 60 * 1000; 
 const MPD_WAIT_MS = 2 * 60 * 1000; 
 const COOLDOWN_MS = 1 * 60 * 1000; 
+const START_DELAY_MS = 4000; // فاصل 4 ثوانٍ بين كل بث وآخر
 
 let activeProcesses = [];
 let activeStreamKeys = [];
@@ -174,31 +175,36 @@ async function runSession(cycleNum) {
   console.log(`🔄 الدورة #${cycleNum} | البدء: ${nowStr()}`);
   console.log(`==========================================`);
 
-  console.log(`\n1️⃣ إنشاء بثوث Facebook لجميع القنوات الـ (${CHANNELS.length}) بالتوازي...`);
-  const sessions = (await Promise.all(CHANNELS.map(createPreview))).filter(Boolean);
-
-  if (isStopping) return;
-
-  console.log(`\n2️⃣ تشغيل عمليات FFmpeg بالتوازي...`);
-  sessions.forEach((res) => {
-    if (res?.stream_url) {
+  console.log(`\n1️⃣ بدء إنشاء وبث القنوات بالتتابع (بين كل قناة وأخرى 4 ثوانٍ)...`);
+  
+  for (const channel of CHANNELS) {
+    if (isStopping || skipCycle) break;
+    
+    const res = await createPreview(channel);
+    if (res && res.stream_url) {
       const info = { name: res.name, url: res.url, img: res.img, rtmp: res.stream_url, id: res.id };
       activeStreamKeys.push(info);
       activeProcesses.push(startFFmpeg(info, info.rtmp));
+      console.log(` ▶️ [FFmpeg] بدأ تشغيل بث ${channel.name}`);
     }
-  });
+
+    // الانتظار لمدة 4 ثوانٍ بين كل بث وقناة تليها
+    await sleep(START_DELAY_MS);
+  }
+
+  if (isStopping || skipCycle) return;
 
   if (activeProcesses.length === 0) {
     console.log(" ⚠️ لم يتم التمكن من بدء أي قناة، سيتم الانتقال للدورة التالية...");
     return;
   }
 
-  console.log(`\n3️⃣ انتظار استقرار البث للحصول على روابط DASH (MPD)...`);
+  console.log(`\n2️⃣ انتظار استقرار البث للحصول على روابط DASH (MPD)...`);
   await countdown(MPD_WAIT_MS, "استقرار DASH");
 
   if (isStopping || skipCycle) return;
 
-  console.log(`\n4️⃣ جلب روابط DASH وتحديث المنشور الرئيسي...`);
+  console.log(`\n3️⃣ جلب روابط DASH وتحديث المنشور الرئيسي...`);
   await Promise.all(
     activeStreamKeys.map(async (s) => {
       try {
@@ -221,7 +227,7 @@ async function runSession(cycleNum) {
     await countdown(remaining, "الوقت المتبقي لانتهاء الجلسة");
   }
 
-  console.log(`\n5️⃣ انتهاء شوط البث: إغلاق الجلسات الحالية والتحضير للدورة التالية...`);
+  console.log(`\n4️⃣ انتهاء شوط البث: إغلاق الجلسات الحالية والتحضير للدورة التالية...`);
   await cleanupSystem();
 }
 
