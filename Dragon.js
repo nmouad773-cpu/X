@@ -42,7 +42,7 @@ const CHANNELS = [
 const SESSION_MS = (3 * 60 + 55) * 60 * 1000; 
 const MPD_WAIT_MS = 2 * 60 * 1000; 
 const COOLDOWN_MS = 1 * 60 * 1000; 
-const START_DELAY_MS = 4000; // فاصل 4 ثوانٍ بين كل بث وآخر
+const START_DELAY_MS = 2000; // فاصل ثانيتين بين كل بث وآخر
 
 let activeProcesses = [];
 let activeStreamKeys = [];
@@ -175,7 +175,7 @@ async function runSession(cycleNum) {
   console.log(`🔄 الدورة #${cycleNum} | البدء: ${nowStr()}`);
   console.log(`==========================================`);
 
-  console.log(`\n1️⃣ بدء إنشاء وبث القنوات بالتتابع (بين كل قناة وأخرى 4 ثوانٍ)...`);
+  console.log(`\n1️⃣ بدء إنشاء وبث القنوات بالتتابع (بين كل قناة وأخرى ثانيتان)...`);
   
   for (const channel of CHANNELS) {
     if (isStopping || skipCycle) break;
@@ -188,7 +188,7 @@ async function runSession(cycleNum) {
       console.log(` ▶️ [FFmpeg] بدأ تشغيل بث ${channel.name}`);
     }
 
-    // الانتظار لمدة 4 ثوانٍ بين كل بث وقناة تليها
+    // الانتظار لمدة ثانيتين بين كل بث وقناة تليها
     await sleep(START_DELAY_MS);
   }
 
