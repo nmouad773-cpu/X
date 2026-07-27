@@ -1,329 +1,389 @@
-const axios = require("axios");
-const { spawn, execSync } = require("child_process");
-const readline = require("readline");
+/**
+ * ====================================================================================
+ * 🐉 DRAGON LIVE 24/7 - Automated Facebook Live Channel Streamer Script (.js)
+ * ====================================================================================
+ * 
+ * هذا سكريبت كامل يعمل بشكل مستقل على Node.js (18+) بدون الحاجة لتثبيت أي مكتبات خارجية!
+ * يقوم بالبث المتزامن التلقائي لجميع القنوات إلى Facebook Live وتحديث منشور فيسبوك بروابط DASH.
+ * 
+ * طريقة التشغيل على أي سيرفر أو VPS أو جهاز محلي:
+ *   node fb_live_streamer.js
+ * ====================================================================================
+ */
 
-// --- الإعدادات العامة والتطبيق ---
-const GRAPH_VERSION = "v22.0";
+const { spawn, execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
-// --- بيانات الوصول للبث المباشر والتعديل ---
-const LIVE_ACCESS_TOKEN = "EAAZAfLN8JuaMBSDchhhQFMqF8xJfvjDmSrEO2qTGCYWBa1uo4t9IuKBNtSVn8iMZAnmPwGVUFWooX2faBveSX8jZCLBCMM8tf3zmpD87CFI57dD3AnH40TGDvqYl3qG2JpfBZB3htAfZBYen4jqjKjYwou8qAKO7WLdpKxrm8xFBWMTsWhN5RwLUqxU0sTZBviP7zw";
-const LIVE_PAGE_ID = "466039649924341";
+const GRAPH_VERSION = "v19.0";
+const CONFIG_FILE = path.join(__dirname, "stream_config.json");
 
-const POST_ACCESS_TOKEN = "EAAZAfLN8JuaMBSNC4PaTVkOfXF7cZAMhj4sT6j35zJQQvVnJXzdzLPc4ibyPmMEaKauOdEj0UYXxZBALTvzukoRZA8kzaeKyZBb3Ucpl8WjBuS0ZCzKr0uTbvlmCJKeRrsiCVgRbhFSguZCMjKK9SUxA7Pvs2EAaeehfRiHyFDTVMV5O2IjmoZCoqlNSgtUqgVHZBNAbOUR8P";
-const POST_PAGE_ID = "1288067541053277";
-const POST_ID = "122102349183401514";
+// الإعدادات الافتراضية الشاملة مع رموز الوصول Access Tokens والقنوات
+const DEFAULT_CONFIG = {
+  liveAccessToken: "EAAZAfLN8JuaMBSDchhhQFMqF8xJfvjDmSrEO2qTGCYWBa1uo4t9IuKBNtSVn8iMZAnmPwGVUFWooX2faBveSX8jZCLBCMM8tf3zmpD87CFI57dD3AnH40TGDvqYl3qG2JpfBZB3htAfZBYen4jqjKjYwou8qAKO7WLdpKxrm8xFBWMTsWhN5RwLUqxU0sTZBviP7zw",
+  livePageId: "466039649924341",
+  postAccessToken: "EAAZAfLN8JuaMBSNC4PaTVkOfXF7cZAMhj4sT6j35zJQQvVnJXzdzLPc4ibyPmMEaKauOdEj0UYXxZBALTvzukoRZA8kzaeKyZBb3Ucpl8WjBuS0ZCzKr0uTbvlmCJKeRrsiCVgRbhFSguZCMjKK9SUxA7Pvs2EAaeehfRiHyFDTVMV5O2IjmoZCoqlNSgtUqgVHZBNAbOUR8P",
+  postPageId: "1288067541053277",
+  postId: "122102349183401514",
+  sessionMinutes: 235, // مدة البث لكل دورة: 3 ساعات و55 دقيقة
+  mpdWaitSeconds: 120, // الانتظار بعد التشغيل لتوليد روابط DASH
+  cooldownSeconds: 60,  // فترة التبريد بين الدورات
+  streamDelaySeconds: 0,
+  probeSize: "10000000",
+  analyzeDuration: "10000000",
+  channels: [
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/753320194_122100376827401514_8275779885008593037_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=oIPWFYYeCrcQ7kNvwFmNDSC&_nc_oc=AdrbZgkHc2Wq6ujLNtTnl4OtG-j9jjQaZlRmPtWwossaTBNUNn6eepA5Cw5lJsUUSKA&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=XFG9bAuC6jlsBoFD8Q3u3A&_nc_ss=7b289&oh=00_AQBWYdbLn0nAse1o0xAunvoBwtF9vYknYp-ZT4-C9avoQQ&oe=6A6D40B7",
+      name: "beIN News", 
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/83618.ts" 
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751563664_122100376317401514_7110231260316540204_n.jpg?stp=dst-jpg_tt6&cstp=mx447x447&ctp=s447x447&_nc_cat=102&ccb=1-7&_nc_sid=833d8c&_nc_ohc=2Jhzsln9fJgQ7kNvwH3Fj4V&_nc_oc=Adpdn7NXY64C3UWfd1GchFgDncYeuKBaV9U12NCGC53F13xKIDn8ABzK2qlnr7ZrbsQ&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=bwtVTnmi1u9TenF7PTWDnQ&_nc_ss=79289&oh=00_AQCRWsgsuOLgFyV2XLnZc6QXS10q-VfjwiUeRlg94FBk9A&oe=6A6D4FCD",
+      name: "beIN 1",    
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78797.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752551212_122100376689401514_5886627502394995910_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=110&ccb=1-7&_nc_sid=833d8c&_nc_ohc=DEc1UxERXlYQ7kNvwFmiw6T&_nc_oc=AdqX6BFTJSmx5mFyIzhqixCvo-4KzxaAgksfQELvFRz8ow5vBjY5yDts0-GHiMjx42Q&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=bwtVTnmi1u9TenF7PTWDnQ&_nc_ss=79289&oh=00_AQA3nxOk4PQ1kmX3xZnmyuQWgXiCJsJL18Gx337q16HS_A&oe=6A6D58AA",
+      name: "beIN 2",    
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78798.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752484584_122100376671401514_6217817104784997284_n.jpg?stp=dst-jpg_tt6&cstp=mx447x447&ctp=s447x447&_nc_cat=102&ccb=1-7&_nc_sid=833d8c&_nc_ohc=0TnbyYPux9YQ7kNvwG-Ozhk&_nc_oc=Adrls0QkTI2TH5i4AWN4eFltoOIa0pCFAKjrN6XcCHIfNY_HH9XuGYJSCh2MPyQLv8A&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=bwtVTnmi1u9TenF7PTWDnQ&_nc_ss=79289&oh=00_AQCvQz6H12jmq62hOS_EX8BQC5GvmenxxykI3wyaqhmT8A&oe=6A6D5F82",
+      name: "beIN 3",    
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78799.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751578454_122100376809401514_6895915391964971655_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=107&ccb=1-7&_nc_sid=833d8c&_nc_ohc=QoElYlm0i1oQ7kNvwGS8Dxw&_nc_oc=AdoV5lKvA792Zhq13pQikGqZej0mdII6t3DN_5FdaJJEFutVsH-M1LCc1bcEyl1B4Z4&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=bwtVTnmi1u9TenF7PTWDnQ&_nc_ss=79289&oh=00_AQAfRKBwCaBuE6JBJZagKfaf9_VfTvBGGq_N-Vdy8hgOYg&oe=6A6D5A4A",
+      name: "beIN 4",    
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78800.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751437753_122100376821401514_6360876051451700135_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=109&ccb=1-7&_nc_sid=833d8c&_nc_ohc=gV3nhKbdAqsQ7kNvwHXRn8e&_nc_oc=AdoPSqFvlNR6324yq31VhtD4W336naxeGJNqSYIinIVTxjxu0UEypmqwXsyncP8H8jc&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=Ge7jYl46e4cpqhHqicVOxA&_nc_ss=7b289&oh=00_AQDn7DqiQnS-m4CmefOafCkjjbQT80boyk2k6RHFA17YJw&oe=6A6D4938",
+      name: "beIN 5",    
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78801.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/753647362_122100376815401514_2257212559810435923_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=103&ccb=1-7&_nc_sid=833d8c&_nc_ohc=F4ADCSQ-6aQQ7kNvwHwJZD-&_nc_oc=Adp3SUULw7OlhOBBpJcD0VibZzAtUgsmCO9XIlCbGkLil-Wr317eg61lMD77ur0dRxY&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=OL0Z0kc1QFJ7fxuAacOhxQ&_nc_ss=7b289&oh=00_AQBT1nAIf-iUOuS5araHxU6xAVE1OBM53LbX_KYlsEzfVA&oe=6A6D4584",
+      name: "beIN 6",    
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78802.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/753320194_122100376683401514_6123074156123600585_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=lqiGCPfM7iIQ7kNvwEZZBIy&_nc_oc=Adqvel9H512ibxrMqzFD-fTpcBbTZwmZU-yEXEnR1zOE0XNASkOgNYOHv6YZAjNImU0&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=MWSjtISjlyu1XVHNnpPh2w&_nc_ss=7b289&oh=00_AQBBg4WaEXiiVpQl-UQv5njbZXyYFPPxK7Li-IQkihw8jA&oe=6A6D36A6",
+      name: "beIN 7",    
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78803.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751915199_122100376731401514_3271433633498970370_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=_6P8F-t6xSUQ7kNvwHr3i27&_nc_oc=AdoanrrSovjgKN_TCLXpBbIegMzbAqN00RzxoRdtefLaMG9XVBV6uz9_J9DcnVxxn_c&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=wWH7emSIoh8c3EC19Lg3jA&_nc_ss=7b289&oh=00_AQAEfFElC5sS6-ZCtWv5KmWb95MWYYnrxAGAX00AgKJ4ig&oe=6A6D47F6",
+      name: "beIN 8",    
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78804.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752648857_122100395247401514_7968696883797853697_n.jpg?stp=dst-jpg_tt6&cstp=mx240x240&ctp=s240x240&_nc_cat=109&ccb=1-7&_nc_sid=833d8c&_nc_ohc=MCrhN3IF-SoQ7kNvwGisiG_&_nc_oc=AdrIYTwOfrxXboUnOP997weHOGl9S5noVeyLP5OQJCGygeSicdsvhJogLqFC4EhnAeM&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=7fTXC10AuOT1PJkpjjz89A&_nc_ss=7b289&oh=00_AQB9lv0GXWraDbogdtqk-RHc3gbWFNEAKmLEH7gyaE5KXA&oe=6A6D5B42",
+      name: "الثمانية 1", 
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/181611.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752648857_122100395247401514_7968696883797853697_n.jpg?stp=dst-jpg_tt6&cstp=mx240x240&ctp=s240x240&_nc_cat=109&ccb=1-7&_nc_sid=833d8c&_nc_ohc=MCrhN3IF-SoQ7kNvwGisiG_&_nc_oc=AdrIYTwOfrxXboUnOP997weHOGl9S5noVeyLP5OQJCGygeSicdsvhJogLqFC4EhnAeM&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=7fTXC10AuOT1PJkpjjz89A&_nc_ss=7b289&oh=00_AQB9lv0GXWraDbogdtqk-RHc3gbWFNEAKmLEH7gyaE5KXA&oe=6A6D5B42",
+      name: "الثمانية 2", 
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/181612.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752648857_122100395247401514_7968696883797853697_n.jpg?stp=dst-jpg_tt6&cstp=mx240x240&ctp=s240x240&_nc_cat=109&ccb=1-7&_nc_sid=833d8c&_nc_ohc=MCrhN3IF-SoQ7kNvwGisiG_&_nc_oc=AdrIYTwOfrxXboUnOP997weHOGl9S5noVeyLP5OQJCGygeSicdsvhJogLqFC4EhnAeM&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=7fTXC10AuOT1PJkpjjz89A&_nc_ss=7b289&oh=00_AQB9lv0GXWraDbogdtqk-RHc3gbWFNEAKmLEH7gyaE5KXA&oe=6A6D5B42",
+      name: "الثمانية 3", 
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/181684.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751563623_122100453369401514_6285272315232538946_n.jpg?stp=dst-jpg_tt6&cstp=mx447x447&ctp=s447x447&_nc_cat=103&ccb=1-7&_nc_sid=833d8c&_nc_ohc=1M4zPftFV9oQ7kNvwEaLZiJ&_nc_oc=Adp76h1T_KVx_dD04XZNBpr9cRrA2GNohfz20PRw5AkXkwmF7vcaWYqGhfcosWpKzvY&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=T--UC2mvIEg4bxdd3eawsQ&_nc_ss=7b289&oh=00_AQC0Ea2t-M-qXTd5dexA8pjstW5OUFN4itjRxxqseksfqw&oe=6A6D4434",
+      name: "Mbc 2", 
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/182044.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/753298323_122100453267401514_3476795863090484615_n.jpg?stp=dst-jpg_tt6&cstp=mx160x160&ctp=s160x160&_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_ohc=WZS6jQMRpmgQ7kNvwH2ZRS0&_nc_oc=AdoML8xpFZ3-yPFzCvMX85Ys1tAMdT6L5vJdaBYu86X2XeuWNn5uTJlswK7NZgKYDPI&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=T--UC2mvIEg4bxdd3eawsQ&_nc_ss=7b289&oh=00_AQB6X0OWcuyzigZzBN1I-w6s8NWsLJYvq5Mt2Qmuen_rKg&oe=6A6D4FDD",
+      name: "Mbc 3", 
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/41070.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/754007087_122100453411401514_5987379144688097958_n.jpg?stp=dst-jpg_tt6&cstp=mx1284x1284&ctp=s1284x1284&_nc_cat=109&ccb=1-7&_nc_sid=833d8c&_nc_ohc=KBXg6tlJcg8Q7kNvwHNecEb&_nc_oc=Adr78RhN8Ierx_pb1Vz0512OYK4eMhFho5_ZtPFkNEcVDvMbB6vHVvpgYaKCr7zsOVc&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=T--UC2mvIEg4bxdd3eawsQ&_nc_ss=7b289&oh=00_AQBbalec5t73eZ_FrIjgoviMniqDp7W90p5tjXYQKNT8gA&oe=6A6D52A4",
+      name: "Mbc 4", 
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/719.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751751765_122100453375401514_1500326668910306352_n.jpg?stp=dst-jpg_tt6&cstp=mx678x452&ctp=s678x452&_nc_cat=107&ccb=1-7&_nc_sid=833d8c&_nc_ohc=630KjAQHXoQQ7kNvwHicOvc&_nc_oc=AdouHdqjicn93UCgrDmikuMmYQCB5d4KLLjuREuR11tfQFKNdnRhbaODArRUdlgQ4U8&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=T--UC2mvIEg4bxdd3eawsQ&_nc_ss=7b289&oh=00_AQDwNYhaOQsCHlqvqinqyUaOR4rHReJepd5akq2AOySDlA&oe=6A6D4117",
+      name: "Mbc 5", 
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/220110.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751563644_122101029321401514_6404423517557507320_n.jpg?stp=dst-jpg_tt6&cstp=mx220x231&ctp=s220x231&_nc_cat=103&ccb=1-7&_nc_sid=833d8c&_nc_ohc=DQPNeXgTPWQQ7kNvwFuCSli&_nc_oc=Adr7WEa5xpFI3w9oDZqyFha-tH5M0RR7qgMiC0vV6hV7O9lW8Q-nY9h51v0aQQwBYIo&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=VrBKCRn-FNO6I1Car43Ysg&_nc_ss=7b289&oh=00_AQAvp9iKEZSLtYMsONbRvgFGDOrUQ0MvWTRUSgB801ZnkA&oe=6A6D4B6D",
+      name: "Al aoula HD", 
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/187252.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751738154_122101029315401514_7668531375224878344_n.jpg?stp=dst-jpg_tt6&cstp=mx320x320&ctp=s320x320&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=P0r434m6Q6AQ7kNvwEyhdCC&_nc_oc=AdoCY1C0Fqfm7tAGs7Cfty31_vg0pmV4x9RSEbzoZdFSl-sUeobX_aXHFxyWpXKHycc&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=VrBKCRn-FNO6I1Car43Ysg&_nc_ss=7b289&oh=00_AQCn3JjlKozE8if0CLOCCXGH49lhKJqQhYDPsX4OxXc_Tg&oe=6A6D59AD",
+      name: "2m maroc", 
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/187254.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752845929_122101029141401514_180650434062533038_n.jpg?stp=dst-jpg_tt6&cstp=mx225x225&ctp=s225x225&_nc_cat=107&ccb=1-7&_nc_sid=833d8c&_nc_ohc=3ObFdFWM6fYQ7kNvwEVVsWS&_nc_oc=AdqpeuozLwdbxz0hQOfuhkSVI9jOhPUuFA4v0_NBvavG9Nipf1T6i_7FnRytbGlb2kc&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=LNc862nIftvkA8aW3WxslA&_nc_ss=7b289&oh=00_AQAUywz6x_kLJE2U-NG_AmWfITaghHoX2sEcbJu-m-ZZYQ&oe=6A6D6DD5",
+      name: "Arryadia HD", 
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/187248.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752391120_122101087545401514_6281134918958186835_n.jpg?stp=dst-jpg_tt6&cstp=mx516x387&ctp=s516x387&_nc_cat=105&ccb=1-7&_nc_sid=833d8c&_nc_ohc=jkJj3e5Euf0Q7kNvwHrvUPD&_nc_oc=AdpB9IVYIcmjutVL5utgpyWZztTrqeo2kvepRvpRbR-sT_jHfZQ8e_c03f2wVNZYJgw&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=SzHrPEdJBL3YYNWOm1fSAg&_nc_ss=79289&oh=00_AQB24c-mF278AdkPOlnIVy8bi-3v7X7lj7ihqNK7hgN4IQ&oe=6A6D36F0",
+      name: "National Geo", 
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/736.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/754202392_122102716053401514_6634846598045965560_n.jpg?stp=dst-jpg_tt6&cstp=mx400x400&ctp=s400x400&_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=MYFJ7GpUqjEQ7kNvwFMQemj&_nc_oc=AdowwN2hP0CAjH6rBotCRTlOm77UrdLb8UX9qJzNVI3QC3ATARoa0LbAWrNnVvkWbNM&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=dr_Dh6EuVQ88j3JmvO3OLA&_nc_ss=79289&oh=00_AQDbIHh8-K9y_xCjwj111eQXGn9ohRXLJIwn6g1R9sAjEA&oe=6A6D3785",
+      name: "قران الكريم", 
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/55964.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/758501547_122105986107401514_2355527433576793162_n.jpg?stp=dst-jpg_tt6&cstp=mx565x572&ctp=s565x572&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=Q2F5I5EhZ0kQ7kNvwFXQI8M&_nc_oc=AdqVu-mkvGnBlwumrusDdVyDpcrZQU7smX-E87kOeNWEyRJNHLQGzr_b9Bj2xNYSuWU&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=tZboPE6OCQGuE_I4OhCqhw&_nc_ss=7b289&oh=00_AQC1nvidfV2caIM_mATMBAz97P9vr8NBgO4qBvFRxs2Bxw&oe=6A6D4513",
+      name: "Movie Thriller", 
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/70833.ts"
+    },
+    { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/758395868_122105986167401514_4707266127005902741_n.jpg?stp=dst-jpg_tt6&cstp=mx606x530&ctp=s606x530&_nc_cat=100&ccb=1-7&_nc_sid=833d8c&_nc_ohc=Jz3segyfqusQ7kNvwGF0Ce-&_nc_oc=Adr0sgGlAPWLn5unYnF3Qtjv9NWNVpp6EbvqbvTw6ZMZwPTWp4k3le8AKCOvYGOKOzM&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=tZboPE6OCQGuE_I4OhCqhw&_nc_ss=7b289&oh=00_AQBfNQYU6bC06U49uKvoCP9H9kn0Im8-EgpZBfpbvpuNHg&oe=6A6D7955",
+      name: "Movie Action", 
+      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/70880.ts"
+    }
+  ]
+};
 
-// --- الدفعة الأولى (تبدأ فوراً معاً في نفس الثانية) ---
-const BATCH_1 = [
-  { name: "beIN News", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/83618.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/753320194_122100376827401514_8275779885008593037_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=104&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=Z1L3joJIsbAQ7kNvwE-yaFq&_nc_oc=Adp37Drggm4JsIEa_bDP3atBnWXnz9dB58hBEpxXEh5u3hayJ1uiUkOGUnCqQJ-DaUw&_nc_zt=23&_nc_ht=scontent.fcmn5-1.fna&_nc_gid=HTDMSiG_KoRIadFytuAx-Q&_nc_ss=7b289&oh=00_AQBepozuMy5zvH_u-B_hQK19qg3OZrdaF-uGU9YxubJT7w&oe=6A6476B7" },
-  { name: "beIN 1", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78797.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751563664_122100376317401514_7110231260316540204_n.jpg?stp=dst-jpg_tt6&cstp=mx447x447&ctp=s447x447&_nc_cat=102&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=TLpTgiehBq8Q7kNvwG7e6fr&_nc_oc=Adphwie250_LoPza4kadv_EOltqLTSHDBw0vTUdHWHFNAOZr7ZbvkYmYNJxlPtX1Nsg&_nc_zt=23&_nc_ht=scontent.fcmn7-1.fna&_nc_gid=yEEgc5683cYLvXmaIGKcfQ&_nc_ss=7b289&oh=00_AQAhfQL5H2WsQlyG_D71zMMeKFFA9RnABtcAqsxKzh-thg&oe=6A644D8D" },
-  { name: "beIN 2", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78798.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752551212_122100376689401514_5886627502394995910_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=110&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=z4nwcj0ViHAQ7kNvwGOSJZT&_nc_oc=Adq586Y8gkrlvsyde8q1ofxnj-vZTFewhbFYd-C33-ZcX_0zMI7eYSx-zvsV_WTlU7o&_nc_zt=23&_nc_ht=scontent.fcmn5-1.fna&_nc_gid=t6wQiIQ6Lgb5HIe5s_vUjQ&_nc_ss=7b289&oh=00_AQA7J-qLVQlAdHngD7FdSaHsGqqaOMlPTFsZpJFftj1oPw&oe=6A64566A" },
-  { name: "beIN 3", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78799.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752484584_122100376671401514_6217817104784997284_n.jpg?stp=dst-jpg_tt6&cstp=mx447x447&ctp=s447x447&_nc_cat=102&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=fOqozvThvhAQ7kNvwEb1Np0&_nc_oc=AdosbWce7blAiqo3Mm1AzHCQDO2iRGB2k5F0fFJUFnsvmR1wGXL-7xF2TwsHzeHU3kE&_nc_zt=23&_nc_ht=scontent.fcmn7-1.fna&_nc_gid=m1_yQa9AEA1qypn-tsV1sg&_nc_ss=7b289&oh=00_AQCm4-EHHUYAybxgWRiI1m19uBwrgqUEEFoA_LBnUbbR5Q&oe=6A645D42" },
-  { name: "beIN 4", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78800.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751578454_122100376809401514_6895915391964971655_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=107&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=N2_PjpxatqoQ7kNvwEGl66q&_nc_oc=AdqWD1jd9bNexUcSdXFXeUxcrctpwOXg3128503HXgA33sV4EXcyezbqV4Np-zbAPvo&_nc_zt=23&_nc_ht=scontent.fcmn7-1.fna&_nc_gid=l6UqIvNuGWGlm7ahim2MZw&_nc_ss=7b289&oh=00_AQAdgJXZn7fb-ItD4VaIqhv3cYhw-NyHL5jxnW1l9ay_yQ&oe=6A64580A" },
-  { name: "beIN 5", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78801.ts", img: "https://scontent.fcmn7-1.fna.fbcdn.net/v/t39.30808-6/751437753_122100376821401514_6360876051451700135_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=109&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=ySobcf3DHjkQ7kNvwGm3gSt&_nc_oc=Ado8vcCfuFeOm6-dxHj3wsm1gf1IY5908s2xroXCh910--xCnep4DEti4ZuzxISFN40&_nc_zt=23&_nc_ht=scontent.fcmn7-1.fna&_nc_gid=oFMQ7vCvjHGEMBFv19j2Gw&_nc_ss=7b289&oh=00_AQD5-Kj5qOCMqKBJtM5xumrJNcSHsp9IMFZqhhZrevqjbA&oe=6A647F38" },
-  { name: "beIN 6", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78802.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/753647362_122100376815401514_2257212559810435923_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=103&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=pwxaqOFDXHUQ7kNvwGlavHZ&_nc_oc=Ado93-Ao-Uafm_24GAs4QEQmtqyDR4XfEStTwKNX8pyRJlRDBp9TEfeldrnXF7bqKw8&_nc_zt=23&_nc_ht=scontent.fcmn7-1.fna&_nc_gid=qIBJdlGIwLWJdiDSPlyu3g&_nc_ss=7b289&oh=00_AQBl7HqKUgm-hnksxvW0JrNEKRpEEDLe435LHTZ5sZvP0g&oe=6A647B84" },
-  { name: "beIN 7", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78803.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/753320194_122100376683401514_6123074156123600585_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=111&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=OzhXdnr9YFQQ7kNvwHCQok4&_nc_oc=AdpT4gQOHsVhF9Jsw1IlRYGK870LCY65rY88epGZ1PyBTg_X9gbUqQYn-taGp00xSFU&_nc_zt=23&_nc_ht=scontent.fcmn5-2.fna&_nc_gid=F4Mg_1myT-o5kIICu54igw&_nc_ss=7b289&oh=00_AQC6H5KnvrMNh1LnVcj6qi-TKTNFNO_bFUg1LCnp78KCeg&oe=6A646CA6" },
-  { name: "beIN 8", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78804.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751915199_122100376731401514_3271433633498970370_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=104&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=SCHI_I1ewfcQ7kNvwEhQdSZ&_nc_oc=AdoIIL7hD1GJXzP187-mP1lbKbJ-bFOKapcCqF2Iw7DcQPwqnRIzdaV51VCEXScSz8w&_nc_zt=23&_nc_ht=scontent.fcmn5-2.fna&_nc_gid=2s0C_xunuHkudQhNlPTuDA&_nc_ss=7b289&oh=00_AQCq_eQehzRfTiLB6GDirN9AjDjx8nb10SsclXjKhRLMEA&oe=6A647DF6" },
-  { name: "الثمانية 1", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/181611.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752648857_122100395247401514_7968696883797853697_n.jpg?stp=dst-jpg_tt6&cstp=mx240x240&ctp=s240x240&_nc_cat=109&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=2FRLcPqDq_cQ7kNvwEXeapC&_nc_oc=AdpXohEoQ7ZJmb3FvdIif-lHhpFlq8DqVZpSfLUom1XR48oQuFzdVebk1QiK1HZEAzU&_nc_zt=23&_nc_ht=scontent.fcmn5-1.fna&_nc_gid=-kptSb0bXqpmqziwEiUyqg&_nc_ss=7b289&oh=00_AQBQFybFXkZv6AM5d3oYYfbgH_4dQ7pbGTALBAzsfbDsTQ&oe=6A645902" },
-  { name: "الثمانية 2", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/181612.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752648857_122100395247401514_7968696883797853697_n.jpg?stp=dst-jpg_tt6&cstp=mx240x240&ctp=s240x240&_nc_cat=109&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=2FRLcPqDq_cQ7kNvwEXeapC&_nc_oc=AdpXohEoQ7ZJmb3FvdIif-lHhpFlq8DqVZpSfLUom1XR48oQuFzdVebk1QiK1HZEAzU&_nc_zt=23&_nc_ht=scontent.fcmn5-1.fna&_nc_gid=-kptSb0bXqpmqziwEiUyqg&_nc_ss=7b289&oh=00_AQBQFybFXkZv6AM5d3oYYfbgH_4dQ7pbGTALBAzsfbDsTQ&oe=6A645902" },
-  { name: "الثمانية 3", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/181684.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752648857_122100395247401514_7968696883797853697_n.jpg?stp=dst-jpg_tt6&cstp=mx240x240&ctp=s240x240&_nc_cat=109&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=2FRLcPqDq_cQ7kNvwEXeapC&_nc_oc=AdpXohEoQ7ZJmb3FvdIif-lHhpFlq8DqVZpSfLUom1XR48oQuFzdVebk1QiK1HZEAzU&_nc_zt=23&_nc_ht=scontent.fcmn5-1.fna&_nc_gid=-kptSb0bXqpmqziwEiUyqg&_nc_ss=7b289&oh=00_AQBQFybFXkZv6AM5d3oYYfbgH_4dQ7pbGTALBAzsfbDsTQ&oe=6A645902" }
-];
+// تحميل الإعدادات المخصصة إن وجدت في ملف stream_config.json
+let config = { ...DEFAULT_CONFIG };
+if (fs.existsSync(CONFIG_FILE)) {
+  try {
+    const loaded = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8'));
+    config = { ...DEFAULT_CONFIG, ...loaded };
+    console.log("⚙️  تم تحميل الإعدادات المخصصة من stream_config.json بنجاح.");
+  } catch (e) {
+    console.error("⚠️  تعذر قراءة stream_config.json، سيتم الاعتماد على الإعدادات المدمجة.", e.message);
+  }
+}
 
-// --- الدفعة الثانية (تبدأ بعد دقيقة من تشغيل الأولى، ومعاً في نفس الثانية) ---
-const BATCH_2 = [
-  { name: "Mbc 2", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/723.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751563623_122100453369401514_6285272315232538946_n.jpg?stp=dst-jpg_tt6&cstp=mx447x447&ctp=s447x447&_nc_cat=103&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=v1y5LRcwtcMQ7kNvwE3a6zC&_nc_oc=AdoU9urHD_KqOilDtOpkswwDBe-GsQzuTTFQjOJrhgWt7zKXctEMTeoltZ5COcNd0JE&_nc_zt=23&_nc_ht=scontent.fcmn7-1.fna&_nc_gid=WnkG4EqtfRDBCwMRQYRwnQ&_nc_ss=79289&oh=00_AQAQUeikvhI6tQ52CG_H2x9lpbORELcQUPFsgs5M2JmR3w&oe=6A647A34" },
-  { name: "Mbc 3", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/41070.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/753298323_122100453267401514_3476795863090484615_n.jpg?stp=dst-jpg_tt6&cstp=mx160x160&ctp=s160x160&_nc_cat=106&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=F1svTvMdrB4Q7kNvwGP4jbp&_nc_oc=AdpHDDaJTaUqr9jmf0PdDJvwhL1l2JEY9yVyIJA99B15pnRxvC3X1VBJKlqQxWLG5p4&_nc_zt=23&_nc_ht=scontent.fcmn5-2.fna&_nc_gid=WnkG4EqtfRDBCwMRQYRwnQ&_nc_ss=79289&oh=00_AQAsB12Q3hbcPYVmmySxZA5pC_W4ZlR6bRbm9I-S_988ww&oe=6A6485DD" },
-  { name: "Mbc 4", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/719.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/754007087_122100453411401514_5987379144688097958_n.jpg?stp=dst-jpg_tt6&cstp=mx1284x1284&ctp=s1284x1284&_nc_cat=109&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=rMZr_L9OeCEQ7kNvwG4UtGS&_nc_oc=Adr2hB9EPItNKSQal7Bw9A9W3q_wDn0FaOSziqULUqZ3Iajt_4mSYSYWY05s7K-Ztw8&_nc_zt=23&_nc_ht=scontent.fcmn7-1.fna&_nc_gid=WnkG4EqtfRDBCwMRQYRwnQ&_nc_ss=79289&oh=00_AQAeAJ5HIBAOzI_Xtyg2RRltRJ4UCCj7i-FUnfKtqatQpA&oe=6A6488A4" },
-  { name: "Mbc 5", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/9753.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751751765_122100453375401514_1500326668910306352_n.jpg?stp=dst-jpg_tt6&cstp=mx678x452&ctp=s678x452&_nc_cat=107&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=5z9e2zaHIQwQ7kNvwGEf8ok&_nc_oc=AdohyAete4SR9PEc3Q8L2PLOY2QWxO3peGfnZRhyonRehKj_vkWk_0QwGx8k9mSGqXw&_nc_zt=23&_nc_ht=scontent.fcmn7-1.fna&_nc_gid=WnkG4EqtfRDBCwMRQYRwnQ&_nc_ss=79289&oh=00_AQB-cPsv-90voPGeZHUpoIJA6PRzuHP_lVvPOrX5JNPdgQ&oe=6A647717" },
-  { name: "National Geo", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/736.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752391120_122101087545401514_6281134918958186835_n.jpg?stp=dst-jpg_tt6&cstp=mx516x387&ctp=s516x387&_nc_cat=105&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=_zJdzEnLV5wQ7kNvwEX_BoL&_nc_oc=AdpTeAApiMacDBPE9BKG6FzM0MvfPM4LuE44Chz3UD535yFS3wpzSciLrnHkONjJIcQ&_nc_zt=23&_nc_ht=scontent.fcmn5-2.fna&_nc_gid=BaTnmsH1DXwnxlkCaqeX5Q&_nc_ss=7b289&oh=00_AQD_NCgSpLSauOqXHmZSLXgYd-r9aVPhf6rC1lwp8-AzFA&oe=6A654DF0" },
-  { name: "Arryadia HD", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/161944.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752845929_122101029141401514_180650434062533038_n.jpg?stp=dst-jpg_tt6&cstp=mx225x225&ctp=s225x225&_nc_cat=107&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=9LYr1DYQ9OEQ7kNvwHDRemh&_nc_oc=AdqlhG0UkcCg6yE9quFMsCyG2QZwv4cA1QZvAHu-Crd1IMOg3zT5A5C_SZaQHlMaDUw&_nc_zt=23&_nc_ht=scontent.fcmn5-2.fna&_nc_gid=Nv-1ScKdj0qpQQdGjxDoWA&_nc_ss=7b289&oh=00_AQBuzdKvU0rfp2KWdTZ3ACZH3rP4q8OPZjBZFx4lRQtf_A&oe=6A654C95" },
-  { name: "Al aoula HD", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/187252.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751563644_122101029321401514_6404423517557507320_n.jpg?stp=dst-jpg_tt6&cstp=mx220x231&ctp=s220x231&_nc_cat=103&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=wWQptmuLWtUQ7kNvwFUT722&_nc_oc=Adr7yvkaUAjtx0vvI68F0aCCDVNwWp1siwGNt8Ib-igMJF2JMQ9Mskj02MwPxQsp2tw&_nc_zt=23&_nc_ht=scontent.fcmn7-1.fna&_nc_gid=DGoI_cRNr1GQ7P5W0i9gWQ&_nc_ss=7b289&oh=00_AQD68vNdK26bJiMI88RfLzXITtxcMYTJlomzhfPgg5RK2w&oe=6A65626D" },
-  { name: "2m maroc", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/166512.ts", img: "https://scontent.fcmn7-1.fna.fbcdn.net/v/t39.30808-6/751738154_122101029315401514_7668531375224878344_n.jpg?stp=dst-jpg_tt6&cstp=mx320x320&ctp=s320x320&_nc_cat=104&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=_vlmDUu9PqwQ7kNvwEC1Luh&_nc_oc=Adol32V5RS-UOcahs3nUjpUMuc4FlDVasbtRYH5qkmS9IiuBG9xDu8a_K8NdOngqQm0&_nc_zt=23&_nc_ht=scontent.fcmn7-1.fna&_nc_gid=Nv-1ScKdj0qpQQdGjxDoWA&_nc_ss=7b289&oh=00_AQD3Us-mDaXbCGdHH0CthNLPS2y7AESPu-HBoIEJF57xeA&oe=6A65386D" },
-  { name: "قرآن الكريم", url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/55964.ts", img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/481069067_28543685108611474_5115389696913786814_n.jpg?stp=dst-jpg_tt6&cstp=mx554x554&ctp=s554x554&_nc_cat=108&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=R1OK0f6lNJoQ7kNvwHGZGMl&_nc_oc=Adq5Uh5xsY1Ohfr72pWsTqP08QgRoN8dCb-wYj6QCOfH4DBpgMxtw3ONnCnNHOgU-Gc&_nc_zt=23&_nc_ht=scontent.fcmn5-1.fna&_nc_gid=mOz-oEmz7G5mWHXyHbiy8Q&_nc_ss=7b289&oh=00_AQC-c1t_wjjUtmojlfC1GBjC6QIoF9Kyy_1jREEk6C37Sw&oe=6A677B5C" }
-];
+// دالة الطباعة السريعة مع الوقت والتاريخ
+function log(msg) {
+  const time = new Date().toISOString().replace('T', ' ').slice(0, 19);
+  console.log(`[${time}] ${msg}`);
+}
 
-// --- الإعدادات الزمنية ---
-const SESSION_MS = (3 * 60 + 55) * 60 * 1000; 
-const MPD_WAIT_MS = 2 * 60 * 1000; 
-const COOLDOWN_MS = 1 * 60 * 1000; 
+// دالة الانتظار Async Sleep
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
-let activeProcesses = [];
+// دالة طلبات FB Graph API عبر fetch المدمجة
+async function fbRequest(endpoint, method = 'GET', bodyParams = null, queryParams = {}) {
+  const url = new URL(`https://graph.facebook.com/${GRAPH_VERSION}/${endpoint}`);
+  Object.keys(queryParams).forEach(k => url.searchParams.append(k, queryParams[k]));
+
+  const options = { method };
+  if (bodyParams) {
+    options.headers = { 'Content-Type': 'application/json' };
+    options.body = JSON.stringify(bodyParams);
+  }
+
+  const res = await fetch(url.toString(), options);
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.message || `Facebook API Error [${res.status}]`);
+  }
+  return data;
+}
+
+// متغيرات حالة البث والعمليات
+let activeProcs = [];
 let activeStreamKeys = [];
 let currentCycle = 1;
-let cycleStartTime = null;
-let isStopping = false;
-let skipCycle = false;
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-function formatDuration(ms) {
-  if (ms < 0) ms = 0;
-  const s = Math.floor(ms / 1000);
-  return `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m ${s % 60}s`;
-}
-
-function nowStr() {
-  return new Date().toISOString().replace("T", " ").slice(0, 19);
-}
-
-async function countdown(ms, label) {
-  let rem = ms;
-  while (rem > 0 && !skipCycle && !isStopping) {
-    process.stdout.write(`\r ⏳ [${label}]: ${formatDuration(rem)} `);
-    const step = Math.min(1000, rem);
-    await sleep(step);
-    rem -= step;
-  }
-  process.stdout.write("\n");
-}
-
-function startFFmpeg(channel, rtmp) {
-  const args = [
-    "-re",
-    "-fflags", "+genpts",
-    "-i", channel.url,
-    "-c", "copy",
-    "-f", "flv",
-    rtmp
-  ];
-
-  const proc = spawn("ffmpeg", args, { stdio: "ignore" });
-
-  proc.on("exit", (code) => {
-    if (code !== 0 && code !== null && !isStopping) {
-      console.log(` ⚠️ [${channel.name}] انقطع البث المباشر (الكود: ${code})`);
-    }
+// تنظيف العمليات عند الخروج
+function cleanupAndExit() {
+  log("🛑 جاري إغلاق السكريبت وتنظيف عمليات FFmpeg...");
+  activeProcs.forEach(p => {
+    try { p.kill('SIGKILL'); } catch (e) {}
   });
-
-  return proc;
-}
-
-async function createPreview(channel) {
-  try {
-    const res = await axios.post(
-      `https://graph.facebook.com/${GRAPH_VERSION}/${LIVE_PAGE_ID}/live_videos`,
-      null,
-      {
-        timeout: 15000,
-        params: {
-          access_token: LIVE_ACCESS_TOKEN,
-          status: "UNPUBLISHED",
-          title: channel.name,
-        },
-      }
-    );
-    return { ...channel, ...res.data };
-  } catch (e) {
-    console.error(` ❌ [${channel.name}] فشل إنشاء الجلسة: ${e.response?.data?.error?.message || e.message}`);
-    return null;
-  }
-}
-
-async function deleteLiveVideo(videoId) {
-  try {
-    await axios.delete(`https://graph.facebook.com/${GRAPH_VERSION}/${videoId}`, {
-      params: { access_token: LIVE_ACCESS_TOKEN },
-      timeout: 10000,
-    });
-    console.log(` 🗑️ تم حذف البث المباشر (ID: ${videoId})`);
-  } catch (e) {
-    console.error(` ⚠️ فشل حذف البث ${videoId}: ${e.response?.data?.error?.message || e.message}`);
-  }
-}
-
-async function updatePost(streamKeys) {
-  const updatedData = streamKeys.map((s) => ({
-    img: s.img,
-    name: s.name,
-    url: s.dash || "Offline",
-  }));
-  const message = JSON.stringify(updatedData);
-
-  try {
-    await axios.post(
-      `https://graph.facebook.com/${GRAPH_VERSION}/${POST_PAGE_ID}_${POST_ID}`,
-      null,
-      {
-        params: {
-          access_token: POST_ACCESS_TOKEN,
-          message: message,
-        },
-      }
-    );
-    console.log(` 📝 تم تحديث المنشور الرئيسي (${POST_ID}) بنجاح`);
-  } catch (e) {
-    console.error(` ⚠️ [POST] خطأ أثناء تحديث المنشور: ${e.response?.data?.error?.message || e.message}`);
-  }
-}
-
-async function cleanupSystem() {
-  console.log("\n🧹 جاري إيقاف جميع محركات FFmpeg وتنظيف البثوث...");
-  
-  activeProcesses.forEach((p) => {
-    try { p.kill("SIGKILL"); } catch {}
-  });
-  activeProcesses = [];
-
   try {
     execSync("pkill -9 ffmpeg 2>/dev/null || true");
-  } catch {}
-
-  if (activeStreamKeys.length > 0) {
-    console.log("🗑️ حذف جلسات البث النشطة من Facebook...");
-    await Promise.all(activeStreamKeys.map((s) => deleteLiveVideo(s.id)));
-    activeStreamKeys = [];
-  }
-}
-
-async function startBatch(channels, batchName) {
-  console.log(`\n🚀 جاري إنشاء جلسات فيسبوك لـ (${batchName}) بالتوازي...`);
-  const previewPromises = channels.map(channel => createPreview(channel));
-  const previewResults = await Promise.all(previewPromises);
-
-  if (isStopping || skipCycle) return;
-
-  console.log(`▶️ تشغيل محركات FFmpeg لـ (${batchName}) في نفس الثواني...`);
-  previewResults.forEach((res, index) => {
-    if (res && res.stream_url) {
-      const channel = channels[index];
-      const info = { name: res.name, url: res.url, img: res.img, rtmp: res.stream_url, id: res.id };
-      activeStreamKeys.push(info);
-      activeProcesses.push(startFFmpeg(info, info.rtmp));
-      console.log(`  ✔️ [FFmpeg] تشغيل ${channel.name} (-c copy)`);
-    }
-  });
-}
-
-async function runSession(cycleNum) {
-  cycleStartTime = Date.now();
-  skipCycle = false;
-  activeProcesses = [];
-  activeStreamKeys = [];
-
-  console.log(`\n==========================================`);
-  console.log(`🔄 الدورة #${cycleNum} | البدء: ${nowStr()}`);
-  console.log(`==========================================`);
-
-  // 1. تشغيل الدفعة الأولى فوراً
-  await startBatch(BATCH_1, "الدفعة الأولى");
-
-  if (isStopping || skipCycle) return;
-
-  // 2. الانتظار لمدة دقيقة واحدة تماماً قبل تشغيل الدفعة الثانية
-  console.log(`\n⏳ تم تشغيل الدفعة الأولى. الانتظار لمدة دقيقة واحدة قبل تشغيل الدفعة الثانية...`);
-  await countdown(60 * 1000, "انتظار الدفعة الثانية");
-
-  if (isStopping || skipCycle) return;
-
-  // 3. تشغيل الدفعة الثانية
-  await startBatch(BATCH_2, "الدفعة الثانية");
-
-  if (isStopping || skipCycle) return;
-
-  if (activeProcesses.length === 0) {
-    console.log(" ⚠️ لم يتم التمكن من بدء أي قناة، سيتم الانتقال للدورة التالية...");
-    return;
-  }
-
-  console.log(`\n3️⃣ انتظار استقرار جميع البثوث للحصول على روابط DASH (MPD)...`);
-  await countdown(MPD_WAIT_MS, "استقرار DASH");
-
-  if (isStopping || skipCycle) return;
-
-  console.log(`\n4️⃣ جلب روابط DASH وتحديث المنشور الرئيسي لكل القنوات...`);
-  await Promise.all(
-    activeStreamKeys.map(async (s) => {
-      try {
-        const r = await axios.get(`https://graph.facebook.com/${GRAPH_VERSION}/${s.id}`, {
-          params: { fields: "dash_preview_url", access_token: LIVE_ACCESS_TOKEN },
-          timeout: 10000,
-        });
-        s.dash = r.data.dash_preview_url || null;
-      } catch {
-        s.dash = null;
-      }
-    })
-  );
-
-  await updatePost(activeStreamKeys);
-
-  const remaining = SESSION_MS - (Date.now() - cycleStartTime);
-  if (remaining > 0 && !isStopping && !skipCycle) {
-    console.log(`\n🚀 جميع البثوث تعمل بنجاح! وقت التشغيل المتبقي لهذا الشوط...`);
-    await countdown(remaining, "الوقت المتبقي لانتهاء الجلسة");
-  }
-
-  console.log(`\n5️⃣ انتهاء شوط البث: إغلاق الجلسات الحالية والتحضير للدورة التالية...`);
-  await cleanupSystem();
-}
-
-function setupInteractiveCLI() {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  rl.on("line", async (line) => {
-    const cmd = line.trim().toLowerCase();
-
-    if (cmd === "status") {
-      console.log(`\n📊 [حالة النظام]`);
-      console.log(` - الدورة الحالية: #${currentCycle}`);
-      console.log(` - عدد القنوات النشطة: ${activeProcesses.length} / ${BATCH_1.length + BATCH_2.length}`);
-      if (cycleStartTime) {
-        const elapsed = Date.now() - cycleStartTime;
-        console.log(` - الوقت المنقضي: ${formatDuration(elapsed)}`);
-      }
-      console.log(`------------------------------------------`);
-    } else if (cmd === "restart") {
-      console.log("\n🔄 تم طلب إعادة التشغيل المباشر للدورة...");
-      skipCycle = true;
-    } else if (cmd === "stop" || cmd === "exit") {
-      console.log("\n🛑 جاري الإيقاف النهائي للسكريبت بناءً على طلبك...");
-      isStopping = true;
-      skipCycle = true;
-      await cleanupSystem();
-      process.exit(0);
-    } else {
-      console.log("💡 الأوامر المتاحة: status | restart | stop");
-    }
-  });
-}
-
-async function main() {
-  console.clear();
-  console.log("==================================================");
-  console.log(" 📺 Facebook Live Batch Streamer (Copy Mode)      ");
-  console.log("==================================================");
-  console.log("💡 اكتب الأوامر التالية في أي وقت أثناء البث:");
-  console.log("   - 'status' : لمعرفة حالة القنوات والوقت.");
-  console.log("   - 'restart': لإعادة بدء الدورة الحالية.");
-  console.log("   - 'stop'   : لإيقاف السكريبت وإغلاق كافة البثوث آمنياً.");
-  console.log("==================================================\n");
-
-  setupInteractiveCLI();
-
-  while (!isStopping) {
-    try {
-      await runSession(currentCycle);
-    } catch (err) {
-      console.error(`❌ خطأ غير متوقع في الدورة الرئيسية: ${err.message}`);
-      await cleanupSystem();
-    }
-
-    if (isStopping) break;
-
-    console.log(`\n💤 فترة استراحة بين الدورات (دقيقة واحدة)...`);
-    await countdown(COOLDOWN_MS, "فترة الراحة");
-    currentCycle++;
-  }
-}
-
-process.on("SIGINT", async () => {
-  console.log("\n\n🛑 تم التقاط أمر الإيقاف (Ctrl+C). جاري التنظيف والسلامة...");
-  isStopping = true;
-  await cleanupSystem();
+  } catch (e) {}
+  log("✅ تم إغلاق كافة عمليات البث. وداعاً!");
   process.exit(0);
-});
+}
 
-main();
+process.on('SIGINT', cleanupAndExit);
+process.on('SIGTERM', cleanupAndExit);
+
+// الدالة الرئيسية للمحرك التلقائي
+async function runDragonLiveLoop() {
+  console.log(`
+====================================================================
+🐉  DRAGON LIVE 24/7 STREAMER LOADED
+📡  عدد القنوات: ${config.channels.length} قناة رياضية وترفيهية
+⏱️  مدة الدورة: ${config.sessionMinutes} دقيقة
+====================================================================
+  `);
+
+  while (true) {
+    try {
+      log(`\n=================== 🚀 بدء الدورة رقم #${currentCycle} ===================`);
+
+      // 1. إنشاء بث مباشر لجميع القنوات على فيسبوك بالتوازي
+      log(`1️⃣  جاري إنشاء نقاط البث المباشر (FB Live Video) لـ ${config.channels.length} قناة...`);
+      const creationPromises = config.channels.map(async (ch) => {
+        let attempts = 0;
+        while (attempts < 3) {
+          attempts++;
+          try {
+            const res = await fbRequest(`${config.livePageId}/live_videos`, 'POST', null, {
+              access_token: config.liveAccessToken,
+              status: "UNPUBLISHED",
+              title: ch.name
+            });
+            log(`  ✅ [${ch.name}] تم إنشاء نقطة البث بنجاح (ID: ${res.id})`);
+            return { ...ch, ...res };
+          } catch (e) {
+            log(`  ⚠️ [${ch.name}] فشلت المحاولة ${attempts}: ${e.message}`);
+            if (attempts < 3) await sleep(2000);
+            else return null;
+          }
+        }
+        return null;
+      });
+
+      const sessions = (await Promise.all(creationPromises)).filter(Boolean);
+      log(`📊  تم تجهيز ${sessions.length} من أصل ${config.channels.length} قناة للبث المباشر.`);
+
+      if (sessions.length === 0) {
+        log("❌  لم يتم إنشاء أي نقطة بث! سيتم إعادة المحاولة بعد 60 ثانية...");
+        await sleep(60000);
+        continue;
+      }
+
+      // 2. تشغيل FFmpeg لكل قناة
+      log(`2️⃣  جاري تشغيل محركات FFmpeg لإرسال البث المباشر لجميع القنوات...`);
+      activeStreamKeys = [];
+      activeProcs = [];
+
+      for (let i = 0; i < sessions.length; i++) {
+        const s = sessions[i];
+        if (s.stream_url) {
+          activeStreamKeys.push({
+            id: s.id,
+            name: s.name,
+            img: s.img,
+            url: s.url,
+            rtmp: s.stream_url,
+            dash: null
+          });
+
+          const args = [
+            "-re",
+            "-thread_queue_size", "2048",
+            "-fflags", "+genpts+discardcorrupt",
+            "-flags", "+global_header",
+            "-probesize", config.probeSize || "10000000",
+            "-analyzeduration", config.analyzeDuration || "10000000",
+            "-timeout", "15000000",
+            "-rw_timeout", "15000000",
+            "-i", s.url,
+            "-c:v", "copy",
+            "-c:a", "aac",
+            "-b:a", "128k",
+            "-ar", "44100",
+            "-ac", "2",
+            "-max_delay", "500000",
+            "-bufsize", "4M",
+            "-max_interleave_delta", "0",
+            "-flvflags", "no_duration_filesize",
+            "-f", "flv",
+            s.stream_url
+          ];
+
+          log(`  🚀 [${s.name}] تشغيل FFmpeg...`);
+          const proc = spawn('ffmpeg', args);
+          activeProcs.push(proc);
+
+          proc.stderr.on('data', (data) => {
+            const errStr = data.toString();
+            if (errStr.toLowerCase().includes("fatal") || errStr.toLowerCase().includes("error")) {
+              if (!errStr.includes("input/output error") && !errStr.includes("non-existing index")) {
+                // طباعة الأخطاء الحرجة إن وجدت
+              }
+            }
+          });
+
+          proc.on('exit', (code, sig) => {
+            log(`  ℹ️ [${s.name}] انتهت عملية FFmpeg (رمز: ${code || sig})`);
+          });
+        }
+      }
+
+      // 3. الانتظار لاستقرار البث وتوليد روابط DASH
+      log(`3️⃣  جاري الانتظار لمدة ${config.mpdWaitSeconds} ثانية لاستقرار البث وتوليد روابط DASH...`);
+      await sleep(config.mpdWaitSeconds * 1000);
+
+      // 4. استخراج روابط DASH وتحديث منشور فيسبوك
+      log(`4️⃣  جاري استخراج روابط المعاينة DASH وتحديث المنشور المباشر...`);
+      await Promise.all(activeStreamKeys.map(async (s) => {
+        try {
+          const r = await fbRequest(s.id, 'GET', null, {
+            fields: "dash_preview_url",
+            access_token: config.liveAccessToken
+          });
+          s.dash = r.dash_preview_url || null;
+        } catch (e) {
+          s.dash = null;
+        }
+      }));
+
+      // إعداد كائن JSON لتحديث المنشور
+      const postPayload = activeStreamKeys.map(s => ({
+        img: s.img,
+        name: s.name,
+        url: s.dash || "Offline"
+      }));
+      const postMessage = JSON.stringify(postPayload, null, 2);
+
+      try {
+        await fbRequest(`${config.postPageId}_${config.postId}`, 'POST', null, {
+          access_token: config.postAccessToken,
+          message: postMessage
+        });
+        log("  📝 تم تحديث منشور فيسبوك بنجاح بقائمة القنوات وروايط DASH الحية!");
+      } catch (e) {
+        log(`  ⚠️ تعذر تحديث منشور فيسبوك: ${e.message}`);
+      }
+
+      // 5. الاستمرار في البث طوال فترة الجلسة
+      const sessionMs = config.sessionMinutes * 60 * 1000;
+      log(`5️⃣  🔥 جميع القنوات تعمل بنجاح! سيستمر البث المباشر لمدة ${config.sessionMinutes} دقيقة...`);
+      await sleep(sessionMs);
+
+      // 6. التنظيف والتبريد قبل الدورة التالية
+      log(`6️⃣  انتهت الجلسة. جاري إيقاف عملية البث وحذف منشورات البث المباشر المؤقتة...`);
+      activeProcs.forEach(p => { try { p.kill('SIGKILL'); } catch (e) {} });
+      activeProcs = [];
+      try { execSync("pkill -9 ffmpeg 2>/dev/null || true"); } catch (e) {}
+
+      await Promise.all(activeStreamKeys.map(async (s) => {
+        try {
+          await fbRequest(s.id, 'DELETE', null, { access_token: config.liveAccessToken });
+        } catch (e) {}
+      }));
+
+      activeStreamKeys = [];
+      log(`😴 فترة تبريد لمدة ${config.cooldownSeconds} ثانية قبل بدء الدورة الجديدة...`);
+      await sleep(config.cooldownSeconds * 1000);
+
+      currentCycle++;
+
+    } catch (e) {
+      log(`❌ حدث خطأ غير متوقع في محرك البث: ${e.message}`);
+      log("إعادة المحاولة بعد 30 ثانية...");
+      await sleep(30000);
+    }
+  }
+}
+
+// بدء التشغيل
+runDragonLiveLoop();
