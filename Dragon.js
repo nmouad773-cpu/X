@@ -44,7 +44,6 @@ const CHANNELS = [
 const SESSION_MS = (3 * 60 + 55) * 60 * 1000; 
 const MPD_WAIT_MS = 2 * 60 * 1000; 
 const COOLDOWN_MS = 1 * 60 * 1000; 
-const START_DELAY_MS = 0; // بدون فاصل زمني نهائياً
 
 let activeProcesses = [];
 let activeStreamKeys = [];
@@ -79,7 +78,6 @@ async function countdown(ms, label) {
 function startFFmpeg(channel, rtmp) {
   let args;
   if (channel.audioCode) {
-    // تشغيل ترميز الصوت المخصص للقنوات المحددة فقط
     args = [
       "-re",
       "-i", channel.url,
@@ -93,7 +91,6 @@ function startFFmpeg(channel, rtmp) {
       rtmp
     ];
   } else {
-    // البث العادي لباقي القنوات
     args = ["-re", "-i", channel.url, "-c", "copy", "-f", "flv", rtmp];
   }
 
@@ -122,7 +119,6 @@ async function createPreview(channel) {
         },
       }
     );
-    console.log(` ✅ [${channel.name}] تم إنشاء البث المباشر (ID: ${res.data.id})`);
     return { ...channel, ...res.data };
   } catch (e) {
     console.error(` ❌ [${channel.name}] فشل إنشاء الجلسة: ${e.response?.data?.error?.message || e.message}`);
@@ -196,27 +192,31 @@ async function runSession(cycleNum) {
   console.log(`🔄 الدورة #${cycleNum} | البدء: ${nowStr()}`);
   console.log(`==========================================`);
 
-  console.log(`\n1️⃣ بدء إنشاء وبث القنوات دفعة واحدة (بدون فاصل زمني)...`);
+  console.log(`\n1️⃣ بدء إنشاء جلسات البث من فيسبوك لجميع القنوات في نفس اللحظة...`);
   
-  for (const channel of CHANNELS) {
-    if (isStopping || skipCycle) break;
-    
-    const res = await createPreview(channel);
+  // تشغيل طلبات فيسبوك بالتوازي دفعة واحدة
+  const previewPromises = CHANNELS.map(channel => createPreview(channel));
+  const previewResults = await Promise.all(previewPromises);
+
+  if (isStopping || skipCycle) return;
+
+  console.log(`\n2️⃣ تشغيل جميع محركات FFmpeg للبث في نفس اللحظة...`);
+  
+  // فور جاهزية الروابط، تشغيل جميع البثوث في نفس الوقت
+  previewResults.forEach((res, index) => {
     if (res && res.stream_url) {
+      const channel = CHANNELS[index];
       const info = { name: res.name, url: res.url, img: res.img, rtmp: res.stream_url, id: res.id, audioCode: channel.audioCode };
       activeStreamKeys.push(info);
       activeProcesses.push(startFFmpeg(info, info.rtmp));
+      
       if (channel.audioCode) {
-        console.log(` ▶️ [FFmpeg] تشغيل ${channel.name} (مع ترميز الصوت للكود ${channel.audioCode})`);
+        console.log(` ▶️ [FFmpeg] تشغيل ${channel.name} (ترميز صوت: ${channel.audioCode})`);
       } else {
-        console.log(` ▶️ [FFmpeg] تشغيل ${channel.name} (بث مباشر عادي)`);
+        console.log(` ▶️ [FFmpeg] تشغيل ${channel.name} (مباشر عادي)`);
       }
     }
-
-    if (START_DELAY_MS > 0) {
-      await sleep(START_DELAY_MS);
-    }
-  }
+  });
 
   if (isStopping || skipCycle) return;
 
@@ -225,12 +225,12 @@ async function runSession(cycleNum) {
     return;
   }
 
-  console.log(`\n2️⃣ انتظار استقرار البث للحصول على روابط DASH (MPD)...`);
+  console.log(`\n3️⃣ انتظار استقرار البث للحصول على روابط DASH (MPD)...`);
   await countdown(MPD_WAIT_MS, "استقرار DASH");
 
   if (isStopping || skipCycle) return;
 
-  console.log(`\n3️⃣ جلب روابط DASH وتحديث المنشور الرئيسي...`);
+  console.log(`\n4️⃣ جلب روابط DASH وتحديث المنشور الرئيسي...`);
   await Promise.all(
     activeStreamKeys.map(async (s) => {
       try {
@@ -253,7 +253,7 @@ async function runSession(cycleNum) {
     await countdown(remaining, "الوقت المتبقي لانتهاء الجلسة");
   }
 
-  console.log(`\n4️⃣ انتهاء شوط البث: إغلاق الجلسات الحالية والتحضير للدورة التالية...`);
+  console.log(`\n5️⃣ انتهاء شوط البث: إغلاق الجلسات الحالية والتحضير للدورة التالية...`);
   await cleanupSystem();
 }
 
@@ -293,7 +293,7 @@ function setupInteractiveCLI() {
 async function main() {
   console.clear();
   console.log("==================================================");
-  console.log(" 📺 Facebook Live Multi-Streamer (Selective Audio) ");
+  console.log(" 📺 Facebook Live Multi-Streamer (Parallel Start) ");
   console.log("==================================================");
   console.log("💡 اكتب الأوامر التالية في أي وقت أثناء البث:");
   console.log("   - 'status' : لمعرفة حالة القنوات والوقت.");
