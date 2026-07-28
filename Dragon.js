@@ -38,124 +38,147 @@ const DEFAULT_CONFIG = {
       url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/83618.ts" 
     },
     { 
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/753320194_122100376827401514_8275779885008593037_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=oIPWFYYeCrcQ7kNvwFmNDSC&_nc_oc=AdrbZgkHc2Wq6ujLNtTnl4OtG-j9jjQaZlRmPtWwossaTBNUNn6eepA5Cw5lJsUUSKA&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=XFG9bAuC6jlsBoFD8Q3u3A&_nc_ss=7b289&oh=00_AQBWYdbLn0nAse1o0xAunvoBwtF9vYknYp-ZT4-C9avoQQ&oe=6A6D40B7",
+      name: "beIN News", 
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/443146.ts" 
+    },
+    { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751563664_122100376317401514_7110231260316540204_n.jpg?stp=dst-jpg_tt6&cstp=mx447x447&ctp=s447x447&_nc_cat=102&ccb=1-7&_nc_sid=833d8c&_nc_ohc=2Jhzsln9fJgQ7kNvwH3Fj4V&_nc_oc=Adpdn7NXY64C3UWfd1GchFgDncYeuKBaV9U12NCGC53F13xKIDn8ABzK2qlnr7ZrbsQ&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=bwtVTnmi1u9TenF7PTWDnQ&_nc_ss=79289&oh=00_AQCRWsgsuOLgFyV2XLnZc6QXS10q-VfjwiUeRlg94FBk9A&oe=6A6D4FCD",
       name: "beIN 1",    
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78797.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/325793.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752551212_122100376689401514_5886627502394995910_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=110&ccb=1-7&_nc_sid=833d8c&_nc_ohc=DEc1UxERXlYQ7kNvwFmiw6T&_nc_oc=AdqX6BFTJSmx5mFyIzhqixCvo-4KzxaAgksfQELvFRz8ow5vBjY5yDts0-GHiMjx42Q&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=bwtVTnmi1u9TenF7PTWDnQ&_nc_ss=79289&oh=00_AQA3nxOk4PQ1kmX3xZnmyuQWgXiCJsJL18Gx337q16HS_A&oe=6A6D58AA",
       name: "beIN 2",    
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78798.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/325794.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752484584_122100376671401514_6217817104784997284_n.jpg?stp=dst-jpg_tt6&cstp=mx447x447&ctp=s447x447&_nc_cat=102&ccb=1-7&_nc_sid=833d8c&_nc_ohc=0TnbyYPux9YQ7kNvwG-Ozhk&_nc_oc=Adrls0QkTI2TH5i4AWN4eFltoOIa0pCFAKjrN6XcCHIfNY_HH9XuGYJSCh2MPyQLv8A&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=bwtVTnmi1u9TenF7PTWDnQ&_nc_ss=79289&oh=00_AQCvQz6H12jmq62hOS_EX8BQC5GvmenxxykI3wyaqhmT8A&oe=6A6D5F82",
       name: "beIN 3",    
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78799.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/325795.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751578454_122100376809401514_6895915391964971655_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=107&ccb=1-7&_nc_sid=833d8c&_nc_ohc=QoElYlm0i1oQ7kNvwGS8Dxw&_nc_oc=AdoV5lKvA792Zhq13pQikGqZej0mdII6t3DN_5FdaJJEFutVsH-M1LCc1bcEyl1B4Z4&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=bwtVTnmi1u9TenF7PTWDnQ&_nc_ss=79289&oh=00_AQAfRKBwCaBuE6JBJZagKfaf9_VfTvBGGq_N-Vdy8hgOYg&oe=6A6D5A4A",
       name: "beIN 4",    
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78800.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/325796.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751437753_122100376821401514_6360876051451700135_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=109&ccb=1-7&_nc_sid=833d8c&_nc_ohc=gV3nhKbdAqsQ7kNvwHXRn8e&_nc_oc=AdoPSqFvlNR6324yq31VhtD4W336naxeGJNqSYIinIVTxjxu0UEypmqwXsyncP8H8jc&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=Ge7jYl46e4cpqhHqicVOxA&_nc_ss=7b289&oh=00_AQDn7DqiQnS-m4CmefOafCkjjbQT80boyk2k6RHFA17YJw&oe=6A6D4938",
       name: "beIN 5",    
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78801.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/325797.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/753647362_122100376815401514_2257212559810435923_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=103&ccb=1-7&_nc_sid=833d8c&_nc_ohc=F4ADCSQ-6aQQ7kNvwHwJZD-&_nc_oc=Adp3SUULw7OlhOBBpJcD0VibZzAtUgsmCO9XIlCbGkLil-Wr317eg61lMD77ur0dRxY&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=OL0Z0kc1QFJ7fxuAacOhxQ&_nc_ss=7b289&oh=00_AQBT1nAIf-iUOuS5araHxU6xAVE1OBM53LbX_KYlsEzfVA&oe=6A6D4584",
       name: "beIN 6",    
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78802.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/325798.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/753320194_122100376683401514_6123074156123600585_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=lqiGCPfM7iIQ7kNvwEZZBIy&_nc_oc=Adqvel9H512ibxrMqzFD-fTpcBbTZwmZU-yEXEnR1zOE0XNASkOgNYOHv6YZAjNImU0&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=MWSjtISjlyu1XVHNnpPh2w&_nc_ss=7b289&oh=00_AQBBg4WaEXiiVpQl-UQv5njbZXyYFPPxK7Li-IQkihw8jA&oe=6A6D36A6",
       name: "beIN 7",    
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78803.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/325799.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751915199_122100376731401514_3271433633498970370_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=_6P8F-t6xSUQ7kNvwHr3i27&_nc_oc=AdoanrrSovjgKN_TCLXpBbIegMzbAqN00RzxoRdtefLaMG9XVBV6uz9_J9DcnVxxn_c&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=wWH7emSIoh8c3EC19Lg3jA&_nc_ss=7b289&oh=00_AQAEfFElC5sS6-ZCtWv5KmWb95MWYYnrxAGAX00AgKJ4ig&oe=6A6D47F6",
       name: "beIN 8",    
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/78804.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/325800.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752648857_122100395247401514_7968696883797853697_n.jpg?stp=dst-jpg_tt6&cstp=mx240x240&ctp=s240x240&_nc_cat=109&ccb=1-7&_nc_sid=833d8c&_nc_ohc=MCrhN3IF-SoQ7kNvwGisiG_&_nc_oc=AdrIYTwOfrxXboUnOP997weHOGl9S5noVeyLP5OQJCGygeSicdsvhJogLqFC4EhnAeM&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=7fTXC10AuOT1PJkpjjz89A&_nc_ss=7b289&oh=00_AQB9lv0GXWraDbogdtqk-RHc3gbWFNEAKmLEH7gyaE5KXA&oe=6A6D5B42",
       name: "الثمانية 1", 
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/181611.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/421785.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752648857_122100395247401514_7968696883797853697_n.jpg?stp=dst-jpg_tt6&cstp=mx240x240&ctp=s240x240&_nc_cat=109&ccb=1-7&_nc_sid=833d8c&_nc_ohc=MCrhN3IF-SoQ7kNvwGisiG_&_nc_oc=AdrIYTwOfrxXboUnOP997weHOGl9S5noVeyLP5OQJCGygeSicdsvhJogLqFC4EhnAeM&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=7fTXC10AuOT1PJkpjjz89A&_nc_ss=7b289&oh=00_AQB9lv0GXWraDbogdtqk-RHc3gbWFNEAKmLEH7gyaE5KXA&oe=6A6D5B42",
       name: "الثمانية 2", 
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/181612.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/421786.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752648857_122100395247401514_7968696883797853697_n.jpg?stp=dst-jpg_tt6&cstp=mx240x240&ctp=s240x240&_nc_cat=109&ccb=1-7&_nc_sid=833d8c&_nc_ohc=MCrhN3IF-SoQ7kNvwGisiG_&_nc_oc=AdrIYTwOfrxXboUnOP997weHOGl9S5noVeyLP5OQJCGygeSicdsvhJogLqFC4EhnAeM&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=7fTXC10AuOT1PJkpjjz89A&_nc_ss=7b289&oh=00_AQB9lv0GXWraDbogdtqk-RHc3gbWFNEAKmLEH7gyaE5KXA&oe=6A6D5B42",
       name: "الثمانية 3", 
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/181684.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/429403.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751563623_122100453369401514_6285272315232538946_n.jpg?stp=dst-jpg_tt6&cstp=mx447x447&ctp=s447x447&_nc_cat=103&ccb=1-7&_nc_sid=833d8c&_nc_ohc=1M4zPftFV9oQ7kNvwEaLZiJ&_nc_oc=Adp76h1T_KVx_dD04XZNBpr9cRrA2GNohfz20PRw5AkXkwmF7vcaWYqGhfcosWpKzvY&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=T--UC2mvIEg4bxdd3eawsQ&_nc_ss=7b289&oh=00_AQC0Ea2t-M-qXTd5dexA8pjstW5OUFN4itjRxxqseksfqw&oe=6A6D4434",
       name: "Mbc 2", 
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/182044.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/45168.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/753298323_122100453267401514_3476795863090484615_n.jpg?stp=dst-jpg_tt6&cstp=mx160x160&ctp=s160x160&_nc_cat=106&ccb=1-7&_nc_sid=833d8c&_nc_ohc=WZS6jQMRpmgQ7kNvwH2ZRS0&_nc_oc=AdoML8xpFZ3-yPFzCvMX85Ys1tAMdT6L5vJdaBYu86X2XeuWNn5uTJlswK7NZgKYDPI&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=T--UC2mvIEg4bxdd3eawsQ&_nc_ss=7b289&oh=00_AQB6X0OWcuyzigZzBN1I-w6s8NWsLJYvq5Mt2Qmuen_rKg&oe=6A6D4FDD",
       name: "Mbc 3", 
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/41070.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/45143.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/754007087_122100453411401514_5987379144688097958_n.jpg?stp=dst-jpg_tt6&cstp=mx1284x1284&ctp=s1284x1284&_nc_cat=109&ccb=1-7&_nc_sid=833d8c&_nc_ohc=KBXg6tlJcg8Q7kNvwHNecEb&_nc_oc=Adr78RhN8Ierx_pb1Vz0512OYK4eMhFho5_ZtPFkNEcVDvMbB6vHVvpgYaKCr7zsOVc&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=T--UC2mvIEg4bxdd3eawsQ&_nc_ss=7b289&oh=00_AQBbalec5t73eZ_FrIjgoviMniqDp7W90p5tjXYQKNT8gA&oe=6A6D52A4",
       name: "Mbc 4", 
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/719.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/45164.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751751765_122100453375401514_1500326668910306352_n.jpg?stp=dst-jpg_tt6&cstp=mx678x452&ctp=s678x452&_nc_cat=107&ccb=1-7&_nc_sid=833d8c&_nc_ohc=630KjAQHXoQQ7kNvwHicOvc&_nc_oc=AdouHdqjicn93UCgrDmikuMmYQCB5d4KLLjuREuR11tfQFKNdnRhbaODArRUdlgQ4U8&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=T--UC2mvIEg4bxdd3eawsQ&_nc_ss=7b289&oh=00_AQDwNYhaOQsCHlqvqinqyUaOR4rHReJepd5akq2AOySDlA&oe=6A6D4117",
       name: "Mbc 5", 
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/220110.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/92759.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751563644_122101029321401514_6404423517557507320_n.jpg?stp=dst-jpg_tt6&cstp=mx220x231&ctp=s220x231&_nc_cat=103&ccb=1-7&_nc_sid=833d8c&_nc_ohc=DQPNeXgTPWQQ7kNvwFuCSli&_nc_oc=Adr7WEa5xpFI3w9oDZqyFha-tH5M0RR7qgMiC0vV6hV7O9lW8Q-nY9h51v0aQQwBYIo&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=VrBKCRn-FNO6I1Car43Ysg&_nc_ss=7b289&oh=00_AQAvp9iKEZSLtYMsONbRvgFGDOrUQ0MvWTRUSgB801ZnkA&oe=6A6D4B6D",
       name: "Al aoula HD", 
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/187252.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/414016.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/751738154_122101029315401514_7668531375224878344_n.jpg?stp=dst-jpg_tt6&cstp=mx320x320&ctp=s320x320&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=P0r434m6Q6AQ7kNvwEyhdCC&_nc_oc=AdoCY1C0Fqfm7tAGs7Cfty31_vg0pmV4x9RSEbzoZdFSl-sUeobX_aXHFxyWpXKHycc&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=VrBKCRn-FNO6I1Car43Ysg&_nc_ss=7b289&oh=00_AQCn3JjlKozE8if0CLOCCXGH49lhKJqQhYDPsX4OxXc_Tg&oe=6A6D59AD",
       name: "2m maroc", 
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/187254.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/413999.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752845929_122101029141401514_180650434062533038_n.jpg?stp=dst-jpg_tt6&cstp=mx225x225&ctp=s225x225&_nc_cat=107&ccb=1-7&_nc_sid=833d8c&_nc_ohc=3ObFdFWM6fYQ7kNvwEVVsWS&_nc_oc=AdqpeuozLwdbxz0hQOfuhkSVI9jOhPUuFA4v0_NBvavG9Nipf1T6i_7FnRytbGlb2kc&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=LNc862nIftvkA8aW3WxslA&_nc_ss=7b289&oh=00_AQAUywz6x_kLJE2U-NG_AmWfITaghHoX2sEcbJu-m-ZZYQ&oe=6A6D6DD5",
       name: "Arryadia HD", 
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/187248.ts"
-    },
-    { 
-      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/752391120_122101087545401514_6281134918958186835_n.jpg?stp=dst-jpg_tt6&cstp=mx516x387&ctp=s516x387&_nc_cat=105&ccb=1-7&_nc_sid=833d8c&_nc_ohc=jkJj3e5Euf0Q7kNvwHrvUPD&_nc_oc=AdpB9IVYIcmjutVL5utgpyWZztTrqeo2kvepRvpRbR-sT_jHfZQ8e_c03f2wVNZYJgw&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=SzHrPEdJBL3YYNWOm1fSAg&_nc_ss=79289&oh=00_AQB24c-mF278AdkPOlnIVy8bi-3v7X7lj7ihqNK7hgN4IQ&oe=6A6D36F0",
-      name: "National Geo", 
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/736.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/414007.ts"
     },
     { 
       img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/754202392_122102716053401514_6634846598045965560_n.jpg?stp=dst-jpg_tt6&cstp=mx400x400&ctp=s400x400&_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=MYFJ7GpUqjEQ7kNvwFMQemj&_nc_oc=AdowwN2hP0CAjH6rBotCRTlOm77UrdLb8UX9qJzNVI3QC3ATARoa0LbAWrNnVvkWbNM&_nc_zt=23&_nc_ht=scontent.ftng2-1.fna&_nc_gid=dr_Dh6EuVQ88j3JmvO3OLA&_nc_ss=79289&oh=00_AQDbIHh8-K9y_xCjwj111eQXGn9ohRXLJIwn6g1R9sAjEA&oe=6A6D3785",
       name: "قران الكريم", 
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/55964.ts"
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/413749.ts"
     },
     { 
-      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/758501547_122105986107401514_2355527433576793162_n.jpg?stp=dst-jpg_tt6&cstp=mx565x572&ctp=s565x572&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=Q2F5I5EhZ0kQ7kNvwFXQI8M&_nc_oc=AdqVu-mkvGnBlwumrusDdVyDpcrZQU7smX-E87kOeNWEyRJNHLQGzr_b9Bj2xNYSuWU&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=tZboPE6OCQGuE_I4OhCqhw&_nc_ss=7b289&oh=00_AQC1nvidfV2caIM_mATMBAz97P9vr8NBgO4qBvFRxs2Bxw&oe=6A6D4513",
-      name: "Movie Thriller", 
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/70833.ts"
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/758677415_122106345471401514_8872222251146600245_n.jpg?stp=dst-jpg_tt6&cstp=mx447x447&ctp=s447x447&_nc_cat=103&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=4cHgJaoB4Q8Q7kNvwFr-Ox3&_nc_oc=Ado5wedV09dvQEvOoM9cfFVCf8eCG4wWRxTSx9Y2WVvjc33rPRcPwlB9Iemd1Ptmq9g&_nc_zt=23&_nc_ht=scontent.fcmn7-1.fna&_nc_gid=MzXcVG2_mECJ5OO5XoRU_w&_nc_ss=79289&oh=00_AQA1SUSCa_1R1DotHpJE6jhkQzAsFGHIr696NOlSKW6w-A&oe=6A6E7EFB",
+      name: "Amazon Prime 1", 
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/414131.ts"
     },
     { 
-      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/758395868_122105986167401514_4707266127005902741_n.jpg?stp=dst-jpg_tt6&cstp=mx606x530&ctp=s606x530&_nc_cat=100&ccb=1-7&_nc_sid=833d8c&_nc_ohc=Jz3segyfqusQ7kNvwGF0Ce-&_nc_oc=Adr0sgGlAPWLn5unYnF3Qtjv9NWNVpp6EbvqbvTw6ZMZwPTWp4k3le8AKCOvYGOKOzM&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=tZboPE6OCQGuE_I4OhCqhw&_nc_ss=7b289&oh=00_AQBfNQYU6bC06U49uKvoCP9H9kn0Im8-EgpZBfpbvpuNHg&oe=6A6D7955",
-      name: "Movie Action", 
-      url: "http://pro.netmos.ovh:7355/live/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/70880.ts"
+      img: "https://scontent.xx.fbcdn.net/v/t39.30808-6/758677415_122106345471401514_8872222251146600245_n.jpg?stp=dst-jpg_tt6&cstp=mx447x447&ctp=s447x447&_nc_cat=103&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=4cHgJaoB4Q8Q7kNvwFr-Ox3&_nc_oc=Ado5wedV09dvQEvOoM9cfFVCf8eCG4wWRxTSx9Y2WVvjc33rPRcPwlB9Iemd1Ptmq9g&_nc_zt=23&_nc_ht=scontent.fcmn7-1.fna&_nc_gid=MzXcVG2_mECJ5OO5XoRU_w&_nc_ss=79289&oh=00_AQA1SUSCa_1R1DotHpJE6jhkQzAsFGHIr696NOlSKW6w-A&oe=6A6E7EFB",
+      name: "Amazon Prime 2", 
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/414132.ts"
+    },
+    { 
+      img: "https://scontent.xx.fna.fbcdn.net/v/t39.30808-6/752391120_122101087545401514_6281134918958186835_n.jpg?stp=dst-jpg_tt6&cstp=mx516x387&ctp=s516x387&_nc_cat=105&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_ohc=8317botw3dsQ7kNvwEZ3j-j&_nc_oc=AdrbvHnddYNf-ewZCsaYaCQp-rdTZh9KeZlCbojqzrGvTwQY2nxIMil4Vy5vAs5TZuA&_nc_zt=23&_nc_ht=scontent.fcmn5-2.fna&_nc_gid=E_kMbJ86ULVSTuwhGtl6BQ&_nc_ss=79289&oh=00_AQCYVBbrxoJmeyGTLet6PDjg9sNdukgMDE818PcjEVsPeA&oe=6A6E8870",
+      name: "National Geo", 
+      url: "http://185.191.126.127:8080/live/b0:99:d7:15:88:50/3090914536649669/15026.ts"
     }
   ]
 };
+
+function normalizeChannels(cfg) {
+  if (cfg && Array.isArray(cfg.channels)) {
+    cfg.channels = cfg.channels.map(ch => {
+      let url = ch.url;
+      if (typeof url === "string") {
+        url = url.replace(/\.m3u8$/i, ".ts");
+        if (url.includes("/live/")) {
+          url = url.replace(/\/+live\//i, "//live/");
+        }
+      }
+      return { ...ch, url };
+    });
+  }
+  return cfg;
+}
+
+normalizeChannels(DEFAULT_CONFIG);
 
 // تحميل الإعدادات المخصصة إن وجدت في ملف stream_config.json
 let config = { ...DEFAULT_CONFIG };
 if (fs.existsSync(CONFIG_FILE)) {
   try {
     const loaded = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8'));
-    config = { ...DEFAULT_CONFIG, ...loaded };
+    config = normalizeChannels({ ...DEFAULT_CONFIG, ...loaded });
     console.log("⚙️  تم تحميل الإعدادات المخصصة من stream_config.json بنجاح.");
   } catch (e) {
     console.error("⚠️  تعذر قراءة stream_config.json، سيتم الاعتماد على الإعدادات المدمجة.", e.message);
@@ -277,37 +300,34 @@ async function runDragonLiveLoop() {
           });
 
           const args = [
-            "-re",
-            "-thread_queue_size", "2048",
-            "-fflags", "+genpts+discardcorrupt",
-            "-flags", "+global_header",
-            "-probesize", config.probeSize || "10000000",
-            "-analyzeduration", config.analyzeDuration || "10000000",
-            "-timeout", "15000000",
-            "-rw_timeout", "15000000",
+            ...(config.userAgent ? ["-user_agent", config.userAgent] : []),
+            "-reconnect", "1",
+            "-reconnect_streamed", "1",
+            "-reconnect_delay_max", "10",
+            "-reconnect_at_eof", "1",
+            "-reconnect_on_network_error", "1",
+            "-reconnect_on_http_error", "4xx,5xx",
             "-i", s.url,
             "-c:v", "copy",
-            "-c:a", "aac",
-            "-b:a", "128k",
-            "-ar", "44100",
-            "-ac", "2",
-            "-max_delay", "500000",
-            "-bufsize", "4M",
-            "-max_interleave_delta", "0",
-            "-flvflags", "no_duration_filesize",
+            "-c:a", "copy",
             "-f", "flv",
             s.stream_url
           ];
 
           log(`  🚀 [${s.name}] تشغيل FFmpeg...`);
-          const proc = spawn('ffmpeg', args);
+          const v7Ffmpeg = path.join(__dirname, "bin", "ffmpeg-v7", "ffmpeg");
+          const v8Ffmpeg = path.join(__dirname, "bin", "ffmpeg-v8", "ffmpeg");
+          const rootFfmpeg = path.join(__dirname, "bin", "ffmpeg");
+          const localFfmpeg = path.join(__dirname, "bin", "ffmpeg-5.1-bin", "ffmpeg");
+          const ffmpegBin = process.env.FFMPEG_PATH || (fs.existsSync(v7Ffmpeg) ? v7Ffmpeg : (fs.existsSync(rootFfmpeg) ? rootFfmpeg : (fs.existsSync(v8Ffmpeg) ? v8Ffmpeg : (fs.existsSync("/usr/bin/ffmpeg") ? "/usr/bin/ffmpeg" : (fs.existsSync(localFfmpeg) ? localFfmpeg : "ffmpeg")))));
+          const proc = spawn(ffmpegBin, args);
           activeProcs.push(proc);
 
           proc.stderr.on('data', (data) => {
             const errStr = data.toString();
             if (errStr.toLowerCase().includes("fatal") || errStr.toLowerCase().includes("error")) {
               if (!errStr.includes("input/output error") && !errStr.includes("non-existing index")) {
-                // طباعة الأخطاء الحرجة إن وجدت
+                // log(`  [FFmpeg ${s.name}]: ${errStr.trim()}`);
               }
             }
           });
