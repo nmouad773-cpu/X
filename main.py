@@ -21,11 +21,7 @@ POST_ID = "122102349183401514"
 
 # --- قائمة القنوات الموحدة (تم تحديث الروابط والصور بناءً على طلبك) ---
 CHANNELS = [
-    {
-        "name": "beIN News",
-        "url": "http://pro.netmos.ovh:7355/UDJPRCRA1L055B/Ep27yiiwbb56mjkl/83618",
-        "img": "https://scontent.xx.fbcdn.net/v/t39.30808-6/753320194_122100376827401514_8275779885008593037_n.jpg?stp=dst-jpg_tt6&cstp=mx200x200&ctp=s200x200&_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=oIPWFYYeCrcQ7kNvwFmNDSC&_nc_oc=AdrbZgkHc2Wq6ujLNtTnl4OtG-j9jjQaZlRmPtWwossaTBNUNn6eepA5Cw5lJsUUSKA&_nc_zt=23&_nc_ht=scontent.ftng1-1.fna&_nc_gid=XFG9bAuC6jlsBoFD8Q3u3A&_nc_ss=7b289&oh=00_AQBWYdbLn0nAse1o0xAunvoBwtF9vYknYp-ZT4-C9avoQQ&oe=6A6D40B7",
-    },
+    
     {
         "name": "beIN News",
         "url": "http://185.191.126.127:8080//b0:99:d7:15:88:50/3090914536649669/443146",
