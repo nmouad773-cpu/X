@@ -19,9 +19,8 @@ POST_ACCESS_TOKEN = "EAAZAfLN8JuaMBSNC4PaTVkOfXF7cZAMhj4sT6j35zJQQvVnJXzdzLPc4ib
 POST_PAGE_ID = "1288067541053277"
 POST_ID = "122102349183401514"
 
-# --- قائمة القنوات الموحدة (تم تحديث الروابط والصور بناءً على طلبك) ---
+# --- قائمة القنوات الموحدة (تم حذف أول beIN News والابقاء على الثانية فقط) ---
 CHANNELS = [
-    
     {
         "name": "beIN News",
         "url": "http://185.191.126.127:8080//b0:99:d7:15:88:50/3090914536649669/443146",
@@ -145,6 +144,8 @@ current_cycle = 1
 cycle_start_time = None
 is_stopping = False
 skip_cycle = False
+
+lock = threading.Lock()
 
 
 def sleep_ms(ms):
@@ -282,32 +283,42 @@ def cleanup_system():
     active_stream_keys = []
 
 
-def start_all_channels():
-  global active_processes, active_stream_keys
-  print(f"\n🚀 جاري إنشاء جلسات فيسبوك لجميع القنوات بالتوازي...")
-
-  with ThreadPoolExecutor(max_workers=10) as executor:
-    preview_results = list(executor.map(create_preview, CHANNELS))
-
+def process_single_channel(channel):
+  """إنشاء البث لكل قناة على حدة وتشغيل FFmpeg فوراً بمجرد تجهيز الـ Stream URL دون انتظار البقية"""
+  global is_stopping, skip_cycle
   if is_stopping or skip_cycle:
     return
 
-  print(f"▶️ تشغيل محركات FFmpeg لجميع القنوات معاً في نفس اللحظة...")
-  for i, res in enumerate(preview_results):
-    if res and "stream_url" in res:
-      channel = CHANNELS[i]
-      info = {
-          "name": res["name"],
-          "url": res["url"],
-          "img": res["img"],
-          "rtmp": res["stream_url"],
-          "id": res["id"],
-      }
+  res = create_preview(channel)
+  if is_stopping or skip_cycle:
+    if res and "id" in res:
+      delete_live_video(res["id"])
+    return
+
+  if res and "stream_url" in res:
+    info = {
+        "name": res["name"],
+        "url": res["url"],
+        "img": res["img"],
+        "rtmp": res["stream_url"],
+        "id": res["id"],
+    }
+    with lock:
       active_stream_keys.append(info)
-      proc = start_ffmpeg(info, info["rtmp"])
-      if proc:
+
+    proc = start_ffmpeg(info, info["rtmp"])
+    if proc:
+      with lock:
         active_processes.append(proc)
-        print(f"  ✔️ [FFmpeg] تشغيل {channel['name']} (-c copy)")
+      print(f"  ✔️ [تشغيل فوري] FFmpeg يعمل الآن لـ: {channel['name']}")
+
+
+def start_all_channels():
+  print(
+      f"\n🚀 بدء إنشاء البثوث وتشغيل محركات FFmpeg فورياً (بالتوازي التام)..."
+  )
+  with ThreadPoolExecutor(max_workers=len(CHANNELS)) as executor:
+    executor.map(process_single_channel, CHANNELS)
 
 
 def run_session(cycle_num):
@@ -321,7 +332,7 @@ def run_session(cycle_num):
   print(f"🔄 الدورة #{cycle_num} | البدء: {now_str()}")
   print(f"==========================================")
 
-  # تشغيل جميع القنوات معاً دفعة واحدة في نفس الثانية
+  # تشغيل وإنشاء القنوات دفعة واحدة بدون أي تأخير أو انتظار جماعي
   start_all_channels()
 
   if is_stopping or skip_cycle:
